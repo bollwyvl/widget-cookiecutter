@@ -1,4 +1,7 @@
-var version = require('./package.json').version;
+var pkg = require('./package.json');
+var version = pkg.version;
+
+  var jlab_helpers = require('jupyterlab/scripts/extension_helpers');
 
 // Custom webpack loaders are generally the same for all webpack bundles, hence
 // stored in a separate local variable.
@@ -16,12 +19,28 @@ module.exports = [
      // "load_ipython_extension" function which is required for any notebook
      // extension.
      //
-        entry: './src/extension.js',
+        entry: './src/notebook/extension.js',
         output: {
-            filename: 'extension.js',
+            filename: 'notebook-extension.js',
             path: '../{{ cookiecutter.python_package_name }}/static',
             libraryTarget: 'amd'
         }
+    },
+    {// JupyterLab extension
+         //
+         // This bundle only contains the part of the JavaScript that is run on
+         // load of JupyterLab.
+         // https://github.com/jupyter/jupyterlab/blob/master/tutorial/extensions.md
+         //
+            entry: './src/lab/extension.js',
+            output: {
+                filename: 'lab-extension.js',
+                path: '../{{ cookiecutter.python_package_name }}/static',
+                libraryTarget: 'this'
+            },
+            // this ensures you don't bundle JupyterLab, Phosphor, and any
+            // extensions on which you depend.
+            externals: jlab_helpers.upstream_externals(require)
     },
     {// Bundle for the notebook containing the custom widget views and models
      //
